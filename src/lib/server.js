@@ -1,9 +1,11 @@
 'use strict';
 
-import * as db from './db';
 import express from 'express';
+import { Server } from 'http';
+
+import * as db from './db';
 import middleware from '../middleware';
-import {log} from './util';
+import { log } from './util';
 
 const app = express().use(middleware);
 const state = {
@@ -19,7 +21,17 @@ export const start = () => {
     state.isOn = true;
     db.start()
       .then(() => {
-        state.http = app.listen(process.env.PORT, () => {
+        const http = Server(app);
+        const io = require('socket.io')(http);
+
+        io.on('connection', client => {
+          console.log(`Client connected: ${client.id}`);
+          client.on('hello', data => {
+            console.log(data);
+          });
+        });
+
+        state.http = http.listen(process.env.PORT, () => {
           log(`__SERVER_UP__ ${process.env.PORT}`);
           resolve();
         });
