@@ -4,8 +4,9 @@ import express from 'express';
 import { Server } from 'http';
 
 import * as db from './db';
-import middleware from '../middleware';
 import { log } from './util';
+import socket from './socket';
+import middleware from '../middleware';
 
 const app = express().use(middleware);
 const state = {
@@ -22,14 +23,7 @@ export const start = () => {
     db.start()
       .then(() => {
         const http = Server(app);
-        const io = require('socket.io')(http);
-
-        io.on('connection', client => {
-          console.log(`Client connected: ${client.id}`);
-          client.on('hello', data => {
-            console.log(data);
-          });
-        });
+        socket(http);
 
         state.http = http.listen(process.env.PORT, () => {
           log(`__SERVER_UP__ ${process.env.PORT}`);
