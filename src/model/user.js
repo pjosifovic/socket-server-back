@@ -1,8 +1,8 @@
 'use strict';
 
 import * as bcrypt from 'bcrypt';
-import {randomBytes} from 'crypto';
 import * as jwt from 'jsonwebtoken';
+import { randomBytes } from 'crypto';
 import createError from 'http-errors';
 import Mongoose, {Schema} from 'mongoose';
 
@@ -51,12 +51,12 @@ User.create = user => {
   if(!user.password || !user.email || ! user.username)
     return Promise.reject(createError(400, '__VALIDATION__ missing username, email, or password'));
 
-  let {password} = user;
+  let { password } = user;
   user = Object.assign({}, user, {password: undefined});
 
   return bcrypt.hash(password, 4)
     .then(passwordHash => {
-      user = Object.assign({}, user, {passwordHash});
+      user = Object.assign({}, user, { passwordHash });
       return new User(user).save();
     });
 };

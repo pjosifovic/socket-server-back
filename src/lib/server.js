@@ -20,7 +20,7 @@ export const start = () => {
       return reject(new Error('__ERROR__ Server is already on'));
 
     state.isOn = true;
-    db.start()
+    db.connect()
       .then(() => {
         const http = Server(app);
         socket(http);
@@ -39,7 +39,7 @@ export const stop = () => {
     if(!state.isOn)
       return reject(new Error('__ERROR__ Server is already off'));
 
-    return db.stop()
+    return db.disconnect()
       .then(() => {
         state.http.close(() => {
           log('__SERVER_DOWN__');

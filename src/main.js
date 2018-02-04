@@ -1,3 +1,3 @@
-import {start} from './lib/server';
+import { start } from './lib/server';
 
 start();

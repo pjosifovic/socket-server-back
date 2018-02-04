@@ -1,10 +1,10 @@
 'use strict';
 
-import {Router} from 'express';
+import { Router } from 'express';
 import User from '../model/user';
-import {basicAuth} from './auth-parser';
-import {json as bodyParser} from 'express';
-import {log, daysToMilliseconds} from '../lib/util';
+import { basicAuth } from './auth-parser';
+import { json as bodyParser } from 'express';
+import { log, daysToMilliseconds } from '../lib/util';
 
 export default new Router()
   .post('/signup', bodyParser(), (request, response, next) => {
@@ -27,3 +27,4 @@ export default new Router()
       })
       .catch(next);
   });
+  

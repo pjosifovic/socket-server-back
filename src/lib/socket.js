@@ -1,4 +1,5 @@
 import socketIO from 'socket.io';
+import { log } from './util';
 import Room from './room';
 
 const state = {
@@ -7,40 +8,41 @@ const state = {
 };
 
 export default server => {
-  // const options = {
-  //   origins: process.env.CORS_ORIGIN,
-  // };
+  const options = {
+    origins: process.env.CORS_ORIGIN,
+  };
 
-  // const io = socketIO(server, options);
-
-  // TODO: Uncomment the above to only allow connections from our front end and delete the below
-
-  const io = socketIO(server);
+  // Rob - Only allow connections from OUR front end when in production
+  const io = process.env.DEBUG === 'true' ? 
+    socketIO(server) : socketIO(server, options);
 
   io.on('connection', client => {
-    console.log(`Client connected: ${client.id}`);
+    log(`Client connected: ${client.id}`);
 
     client.on('disconnect', () => {
-      console.log(`Client disconnected: ${client.id}`);
+      log(`Client disconnected: ${client.id}`);
+
+      // Rob - if disconnecting client owns any rooms, shut down that room
       const ownedRoom = state.owners[client.id];
       if (ownedRoom) {
-        state.rooms[ownedRoom].closeRoom(io); 
-        // TODO: add to this so we emit a notification to each connected client
+        state.rooms[ownedRoom].closeRoom(); 
+        // TODO: change the owners nad rooms maps so it is gone
       }
     });
     
     client.on('create room', roomName => {
       if (state.rooms[roomName]) {
-        io.to(client.id).emit('room conflict', `The room name "${roomName}" is not available.`);
+        client.emit('room conflict', `The room name "${roomName}" is not available.`);
       } else {
-        io.to(client.id).emit('room created', `You have just created the room "${roomName}".`);
+        client.emit('room created', `You have just created the room "${roomName}".`);
         // TODO: on client side this must dispatch set state for room
         // TODO: add check to make sure you don't already own a room
+        // Rob - create the room and add to info to the two maps
         state.rooms[roomName] = new Room(client, roomName);
         state.owners[client.id] = roomName;
         client.join(roomName);
-        console.log('socket.io ROOOOOOMS', io.sockets.adapter.rooms);
-        console.log('STATEEEEEEEE', state);
+        log('socket.io ROOOOOOMS', io.sockets.adapter.rooms);
+        log('STATEEEEEEEE', state);
       }
     });
     
@@ -48,16 +50,15 @@ export default server => {
       const roomToJoin = state.rooms[roomName];
       if (roomToJoin) {
         // TODO: add check to make sure we are not already in the room
-        io.to(client.id).emit('room joined', `You have just joined the room "${roomName}".`);
+        client.emit('room joined', `You have just joined the room "${roomName}".`);
         // TODO: on client side this must dispatch set state for room
         client.join(roomName);
         roomToJoin.addVoter(client);
-        console.log('STATEEEEEEEE', state);
-        console.log(state.rooms[roomName].voters.map(voter => voter.id));
+        log('STATEEEEEEEE', state);
+        log(state.rooms[roomName].voters.map(voter => voter.id));
       } else {
-        io.to(client.id).emit('room not found', `The room name "${roomName}" does not exist.`);
+        client.emit('room not found', `The room name "${roomName}" does not exist.`);
       }
     });
   });
 };
-

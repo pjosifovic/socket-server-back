@@ -1,5 +1,6 @@
-import {log} from '../lib/util';
+import { log } from '../lib/util';
 
+// Rob - send request with debug header to display all data
 export default (request, response, next) => {
   if(request.header.debug) {
     log('request.url', request.url);

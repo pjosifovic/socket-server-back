@@ -1,7 +1,7 @@
 'use strict';
 
 import cors from 'cors';
-import {Router} from 'express';
+import { Router } from 'express';
 import catchAll from './catch-all';
 import authRouter from './router-auth';
 import errorHandler from './error-handler';

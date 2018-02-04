@@ -9,9 +9,11 @@ class Room {
     socket.join(roomName);
   }
 
-  closeRoom(io) {
+  closeRoom() {
     this.voters.forEach(voter => {
-      io.to(voter.id).emit('room closed', `The room "${this.roomName}" has been closed.`);
+      voter.emit('room closed',
+        `The room "${this.roomName}" has been closed.`
+      );
       voter.leave(this.roomName);
     });
   }
@@ -21,7 +23,8 @@ class Room {
   }
 
   removeVoter(voter) {
-    this.voters = this.voters.filter(currentVoter => currentVoter.id !== voter.id);
+    this.voters = this.voters
+      .filter(currentVoter => currentVoter.id !== voter.id);
   }
 
   // TODO: send poll?

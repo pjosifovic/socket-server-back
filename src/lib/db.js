@@ -1,13 +1,13 @@
 'use strict';
 
-import {log} from './util';
+import { log } from './util';
 import mongoose from 'mongoose';
 
 const state = {
   isOn: false,
 };
 
-export const start = () => {
+export const connect = () => {
   log(`__DB_UP__ ${process.env.MONGO_URI}`);
 
   if(state.isOn)
@@ -17,10 +17,10 @@ export const start = () => {
   return mongoose.connect(process.env.MONGO_URI);
 };
 
-export const stop = () => {
+export const disconnect = () => {
   log('__DB_DOWN__');
   if(!state.isOn)
-    return Promise.reject(new Error('__ERROR__ Not connected to DB'));
+    return Promise.disconnect(new Error('__ERROR__ Not connected to DB'));
   
   state.isOn = false;
   return mongoose.disconnect();
