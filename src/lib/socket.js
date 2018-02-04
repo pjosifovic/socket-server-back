@@ -1,5 +1,7 @@
 import socketIO from 'socket.io';
 
+const openRooms = {};
+
 export default server => {
   const options = {
     origins: process.env.CORS_ORIGIN,
@@ -9,8 +11,10 @@ export default server => {
 
   io.on('connection', client => {
     console.log(`Client connected: ${client.id}`);
-    client.on('hello', data => {
-      console.log(data);
+    client.on('createRoom', roomName => {
+      openRooms[roomName] = client.id;
+      console.log(io.sockets);
+      console.log(openRooms);
     });
   });
 };
