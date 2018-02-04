@@ -9,9 +9,9 @@ class Room {
     socket.join(roomName);
   }
 
-  closeRoom() {
-    this.voters.push(this.creator);
+  closeRoom(io) {
     this.voters.forEach(voter => {
+      io.to(voter.id).emit('room closed', `The room "${this.roomName}" has been closed.`);
       voter.leave(this.roomName);
     });
   }
