@@ -2,7 +2,7 @@
 
 class Room {
   constructor(socket, roomName) {
-    this.creator = socket;
+    this.owner = socket;
     this.voters = [];
     this.roomName = roomName;
 
@@ -25,6 +25,13 @@ class Room {
   removeVoter(voter) {
     this.voters = this.voters
       .filter(currentVoter => currentVoter.id !== voter.id);
+  }
+
+  sendPoll(message) {
+    this.owner.broadcast.to(this.roomName).emit('poll inbound', {
+      message,
+      room: this.roomName,
+    });
   }
 
   // TODO: send poll?

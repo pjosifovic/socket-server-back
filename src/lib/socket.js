@@ -32,7 +32,7 @@ export default server => {
     
     client.on('create room', roomName => {
       if (state.rooms[roomName]) {
-        client.emit('room conflict', `The room name "${roomName}" is not available.`);
+        client.emit('room conflict', roomName);
       } else {
         client.emit('room created', `You have just created the room "${roomName}".`);
         // TODO: on client side this must dispatch set state for room
@@ -50,7 +50,7 @@ export default server => {
       const roomToJoin = state.rooms[roomName];
       if (roomToJoin) {
         // TODO: add check to make sure we are not already in the room
-        client.emit('room joined', `You have just joined the room "${roomName}".`);
+        client.emit('room joined', roomName);
         // TODO: on client side this must dispatch set state for room
         client.join(roomName);
         roomToJoin.addVoter(client);
@@ -59,6 +59,22 @@ export default server => {
       } else {
         client.emit('room not found', `The room name "${roomName}" does not exist.`);
       }
+    });
+
+    client.on('send message', message => {
+      const ownedRoom = state.owners[client.id];
+      if (ownedRoom) {
+        state.rooms[ownedRoom].sendPoll(message); 
+      }
+    });
+
+    client.on('poll response', data => {
+      console.log('data', data);
+      console.log(state.rooms);
+      
+      
+      const owner = state.rooms[data.room].owner;
+      owner.emit('poll result', data.responseToPoll);
     });
   });
 };
