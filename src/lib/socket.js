@@ -33,7 +33,7 @@ export default server => {
       if (state.rooms[roomName]) {
         io.to(client.id).emit('room conflict', `The room name "${roomName}" is not available.`);
       } else {
-        io.to(client.id).emit('room created', `You have just created the room "${roomName}".`);
+        io.to(client.id).emit('room created', roomName);
         // TODO: on client side this must dispatch set state for room
         // TODO: add check to make sure you don't already own a room
         state.rooms[roomName] = new Room(client, roomName);
